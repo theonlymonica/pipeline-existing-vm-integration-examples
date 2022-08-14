@@ -1,5 +1,5 @@
 
-# Welcome to your CDK Python project!
+# CDK Python project - CodePipeline with StepFunction
 
 This is a blank project for CDK development with Python.
 
