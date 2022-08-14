@@ -1,0 +1,19 @@
+schemaVersion: "2.2"
+description: "Example document"
+parameters:
+  Message:
+    type: "String"
+    description: "Example parameter"
+    default: "Hello World"
+mainSteps:
+  - action: "aws:runPowerShellScript"
+    name: "example"
+    precondition:
+      StringEquals:
+        - platformType
+        - Windows
+    inputs:
+      timeoutSeconds: "60"
+      runCommand:
+        - "Write-Output {{Message}}"
+        - Start-Sleep -Seconds 50
