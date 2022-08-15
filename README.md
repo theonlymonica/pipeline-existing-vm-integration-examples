@@ -1,7 +1,6 @@
-
 # CDK Python project - CodePipeline with StepFunction
 
-This is a blank project for CDK development with Python.
+This is a project for CDK development with Python.
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 

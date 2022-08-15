@@ -3,8 +3,11 @@ description: "Example document"
 parameters:
   Message:
     type: "String"
-    description: "Example parameter"
+    description: "Message to write"
     default: "Hello World"
+  OutputBucket:
+    type: "String"
+    description: "Bucket to save output"
 mainSteps:
   - action: "aws:runPowerShellScript"
     name: "example"
@@ -15,5 +18,7 @@ mainSteps:
     inputs:
       timeoutSeconds: "60"
       runCommand:
-        - "Write-Output {{Message}}"
-        - Start-Sleep -Seconds 50
+        - Start-Sleep -Seconds 10
+        - Import-Module AWSPowerShell
+        - $fname = $(((get-date).ToUniversalTime()).ToString("yyyyMMddTHHmmssZ"))
+        - "Write-S3Object -BucketName {{OutputBucket}} -Key ($fname + '.txt') -Content {{Message}}"

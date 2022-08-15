@@ -1,7 +1,6 @@
 import boto3
 import os
 import logging
-import json
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -12,15 +11,19 @@ document_name = os.environ["SSM_DOCUMENT"]
 output_bucket = os.environ["OUTPUT_BUCKET"]
 
 def lambda_handler(event, context):
-    logger.info(event)
+    logger.debug(event)
 
     instance_id = event["instance_id"]
-    test_number = event["test_number"]
+    message = event["message"]
         
     response = ssm_client.send_command(
                 InstanceIds=[instance_id],
                 DocumentName=document_name,
-                Parameters={"Message": [test_number]})
+                Parameters={
+                    "Message": [message],
+                    "OutputBucket": [output_bucket]})
+    
+    logger.debug(response)
 
     command_id = response['Command']['CommandId']
     data = {

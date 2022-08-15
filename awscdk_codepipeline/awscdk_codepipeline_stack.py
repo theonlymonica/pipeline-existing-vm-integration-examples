@@ -19,22 +19,10 @@ class AwscdkCodepipelineStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
         
-        repo = codecommit.Repository(self, "MonicaRepo",
-            repository_name="monica-repo"
-        )
+        # CodeCommit Repo
         
-        pipeline = codepipeline.Pipeline(self, "MonicaPipeline",
-            pipeline_name="MonicaPipeline",
-            cross_account_keys=False
-        )
-        
-        source_output = codepipeline.Artifact("SourceArtifact")
-        
-        source_action = codepipeline_actions.CodeCommitSourceAction(
-            action_name="CodeCommit",
-            repository=repo,
-            branch="main",
-            output=source_output
+        repo = codecommit.Repository(self, "pipe-sfn-ec2Repo",
+            repository_name="pipe-sfn-ec2-repo"
         )
         
         # SSM Document
@@ -45,7 +33,7 @@ class AwscdkCodepipelineStack(Stack):
                 content=documentContent,
                 document_format="YAML",
                 document_type="Command",
-                name="MonicaWinSampleCommand",
+                name="pipe-sfn-ec2Win2S3",
                 target_type="/AWS::EC2::Instance"
             )
         
@@ -115,7 +103,7 @@ class AwscdkCodepipelineStack(Stack):
         fail_job = _aws_stepfunctions.Fail(
             self, "Fail",
             cause='AWS SSM Job Failed',
-            error='DescribeJob returned FAILED'
+            error='Statud Job returned FAILED'
         )
 
         succeed_job = _aws_stepfunctions.Succeed(
@@ -133,13 +121,29 @@ class AwscdkCodepipelineStack(Stack):
         sfn = _aws_stepfunctions.StateMachine(
             self, "StateMachine",
             definition=definition,
-            timeout=Duration.minutes(5),
+            timeout=Duration.minutes(5)
+        )
+        
+        # CodePipeline
+        
+        pipeline = codepipeline.Pipeline(self, "pipe-sfn-ec2Pipeline",
+            pipeline_name="pipe-sfn-ec2Pipeline",
+            cross_account_keys=False
+        )
+        
+        source_output = codepipeline.Artifact("SourceArtifact")
+        
+        source_action = codepipeline_actions.CodeCommitSourceAction(
+            action_name="CodeCommit",
+            repository=repo,
+            branch="main",
+            output=source_output
         )
         
         step_function_action = codepipeline_actions.StepFunctionInvokeAction(
             action_name="Invoke",
             state_machine=sfn,
-            state_machine_input=codepipeline_actions.StateMachineInput.file_path(source_output.at_path("abc.json"),)
+            state_machine_input=codepipeline_actions.StateMachineInput.file_path(source_output.at_path("abc.json"))
         )
         
         pipeline.add_stage(
