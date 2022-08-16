@@ -34,6 +34,7 @@ class AwscdkCodepipelineStack(Stack):
                 document_format="YAML",
                 document_type="Command",
                 name="pipe-sfn-ec2Win-GitS3",
+                update_method= "NewVersion",
                 target_type="/AWS::EC2::Instance"
             )
         
@@ -91,9 +92,9 @@ class AwscdkCodepipelineStack(Stack):
         )
 
         wait_job = _aws_stepfunctions.Wait(
-            self, "Wait 3 Seconds",
+            self, "Wait 10 Seconds",
             time=_aws_stepfunctions.WaitTime.duration(
-                Duration.seconds(3))
+                Duration.seconds(10))
         )
 
         status_job = _aws_stepfunctions_tasks.LambdaInvoke(

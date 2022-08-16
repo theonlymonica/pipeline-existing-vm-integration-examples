@@ -19,24 +19,17 @@ mainSteps:
         - platformType
         - Windows
     inputs:
-      timeoutSeconds: "120"
+      timeoutSeconds: "60"
       runCommand:
-        - Write-Host "Sleeping..."
-        - Start-Sleep -Seconds 10
         - Import-Module AWSPowerShell
         - Write-Host "Create temp dir"
         - $tempdir=$(-join ((48..57) + (97..122) | Get-Random -Count 32 | % {[char]$_}))
-        - New-item “$env:temp\$mydir" -ItemType Directory | Out-Null
+        - New-item "$env:temp\$tempdir" -ItemType Directory
         - Write-Host "Cloning repository"
         - "git clone {{CodeRepository}} $tempdir"
-        - cd $tempdir
-        - Write-Host "Listing repository"
-        - ls
         - $fname = $(((get-date).ToUniversalTime()).ToString("yyyyMMddTHHmmssZ"))
         - Write-Host "Writing file on S3"
         - "Write-S3Object -BucketName {{OutputBucket}} -Key ($fname + '.txt') -Content {{Message}}"
         - Write-Host "Removing temp dir"
-        - cd ..
-        - Get-ChildItem -Path $tempdir -Recurse | Remove-Item -force -recurse
-        - Remove-Item $tempdir -Force
+        - Remove-Item -path $tempdir -Recurse -Force -EA SilentlyContinue
         - Write-Host "All done!"
