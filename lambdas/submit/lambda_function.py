@@ -9,6 +9,7 @@ ssm_client = boto3.client('ssm')
 
 document_name = os.environ["SSM_DOCUMENT"]
 output_bucket = os.environ["OUTPUT_BUCKET"]
+code_repository = os.environ["CODE_REPOSITORY"]
 
 def lambda_handler(event, context):
     logger.debug(event)
@@ -21,7 +22,8 @@ def lambda_handler(event, context):
                 DocumentName=document_name,
                 Parameters={
                     "Message": [message],
-                    "OutputBucket": [output_bucket]})
+                    "OutputBucket": [output_bucket],
+                    "CodeRepository": [code_repository]})
     
     logger.debug(response)
 

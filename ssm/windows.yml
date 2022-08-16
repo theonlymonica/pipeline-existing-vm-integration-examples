@@ -8,6 +8,9 @@ parameters:
   OutputBucket:
     type: "String"
     description: "Bucket to save output"
+  CodeRepository:
+    type: "String"
+    description: "Git repository to clone"
 mainSteps:
   - action: "aws:runPowerShellScript"
     name: "example"
@@ -16,9 +19,24 @@ mainSteps:
         - platformType
         - Windows
     inputs:
-      timeoutSeconds: "60"
+      timeoutSeconds: "120"
       runCommand:
+        - Write-Host "Sleeping..."
         - Start-Sleep -Seconds 10
         - Import-Module AWSPowerShell
+        - Write-Host "Create temp dir"
+        - $tempdir=$(-join ((48..57) + (97..122) | Get-Random -Count 32 | % {[char]$_}))
+        - New-item “$env:temp\$mydir" -ItemType Directory | Out-Null
+        - Write-Host "Cloning repository"
+        - "git clone {{CodeRepository}} $tempdir"
+        - cd $tempdir
+        - Write-Host "Listing repository"
+        - ls
         - $fname = $(((get-date).ToUniversalTime()).ToString("yyyyMMddTHHmmssZ"))
+        - Write-Host "Writing file on S3"
         - "Write-S3Object -BucketName {{OutputBucket}} -Key ($fname + '.txt') -Content {{Message}}"
+        - Write-Host "Removing temp dir"
+        - cd ..
+        - Get-ChildItem -Path $tempdir -Recurse | Remove-Item -force -recurse
+        - Remove-Item $tempdir -Force
+        - Write-Host "All done!"

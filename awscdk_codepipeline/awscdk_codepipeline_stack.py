@@ -33,7 +33,7 @@ class AwscdkCodepipelineStack(Stack):
                 content=documentContent,
                 document_format="YAML",
                 document_type="Command",
-                name="pipe-sfn-ec2Win2S3",
+                name="pipe-sfn-ec2Win-GitS3",
                 target_type="/AWS::EC2::Instance"
             )
         
@@ -47,7 +47,8 @@ class AwscdkCodepipelineStack(Stack):
                                          code=_lambda.Code.from_asset('lambdas/submit'),
                                          environment={
                                              "OUTPUT_BUCKET": output_bucket.bucket_name,
-                                             "SSM_DOCUMENT": cfn_document.name
+                                             "SSM_DOCUMENT": cfn_document.name,
+                                             "CODE_REPOSITORY": repo.repository_clone_url_http
                                              })
 
         status_lambda = _lambda.Function(self, 'statusLambda',
