@@ -34,7 +34,7 @@ class AwscdkCodepipelineStack(Stack):
                 document_format="YAML",
                 document_type="Command",
                 name="pipe-sfn-ec2Win-GitS3",
-                update_method= "NewVersion",
+                update_method="NewVersion",
                 target_type="/AWS::EC2::Instance"
             )
         
